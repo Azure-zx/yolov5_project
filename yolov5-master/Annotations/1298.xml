@@ -1,0 +1,26 @@
+<annotation>
+	<folder>img</folder>
+	<filename>1298.jpg</filename>
+	<path>C:\Users\Administrator\Desktop\fall\img\1298.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>662</width>
+		<height>486</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>fall</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>177</xmin>
+			<ymin>84</ymin>
+			<xmax>377</xmax>
+			<ymax>236</ymax>
+		</bndbox>
+	</object>
+</annotation>
