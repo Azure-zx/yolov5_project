@@ -188,7 +188,6 @@ def run(
                         if names[c] == 'down' and count == 0:
                             count = count + 1
 
-                        # 获取跌倒置信度
 
                         if count >= 1 and names[c] == 'down':
                             target_cls = 0  # 获取标签为0的目标框(down)
@@ -197,6 +196,7 @@ def run(
                             # 获取目标框置信度列表
                             confidences = target_boxes[:, 4]
                             confidences_list = confidences.tolist()
+                            # 获取跌倒置信度
                             value = confidences_list[0]
                             # 判断置信度是否超过期望阈值
                             if value >= 0.9 and count <= 2:
@@ -292,6 +292,7 @@ def main(opt):
 def warning():
     url = ' http://miaotixing.com/trigger?id=tej14SS'
     requests.get(url)
+
 
 async def send_notification(url):
     async with aiohttp.ClientSession() as session:
