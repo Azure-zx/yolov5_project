@@ -1,18 +1,9 @@
-import sys, os
-from untitled import  Ui_MainWindow
+from ui import  Ui_MainWindow
 from PyQt5 import QtCore,QtGui,uic,QtWidgets
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-import numpy as np
-from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel,QFileDialog
-import argparse
-import cv2
-from detect import run
-import subprocess
-import argparse
+from PyQt5.QtWidgets import QFileDialog
 import os
-import platform
 import sys
 from pathlib import Path
 import requests
@@ -433,9 +424,8 @@ if __name__ == '__main__':
     window = MyApp()
     window.show()
     # 创建一个进程 click_button时启动该线程然后进行一个window.run
-    my_thread = threading.Thread(target=window.warning)
+    # my_thread = threading.Thread(target=window.warning)
     # window.pushButton.clicked.connect(my_thread.start)
-
     # my_thread2 = threading.Thread(target=window.open_image)
     # window.pushButton_2.clicked.connect(my_thread2.start)
     sys.exit(app.exec_())
