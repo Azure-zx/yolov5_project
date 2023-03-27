@@ -1,4 +1,4 @@
-from ui import  Ui_MainWindow
+from ui_design import  Ui_MainWindow
 from PyQt5 import QtCore,QtGui,uic,QtWidgets
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -38,16 +38,30 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.pushButton.clicked.connect(self.open_camera)
         self.pushButton_2.clicked.connect(self.open_image)
         self.pushButton_3.clicked.connect(self.open_vedio)
-        bg_image = QPixmap()
-        bg_image.load('background.png')
-
-        # 创建画刷
-        palette = QPalette()
-        palette.setBrush(QPalette.Background, QBrush(bg_image))
-
-        # 应用画刷到窗口
-        self.setPalette(palette)
+        self.pushButton_4.clicked.connect(self.show_capture)
+        # 设置第一个窗口的背景图片
+        pixmap = QPixmap('back_ground_camera.png')
+        self.label.setPixmap(pixmap)
+        self.label.setStyleSheet('background-color: transparent;')
+        # 设置第二个窗口的背景图片
+        pixmap = QPixmap('back_ground_capture.jpg')
+        self.label_2.setPixmap(pixmap)
+        self.label_2.setStyleSheet('background-color: transparent;')
+        # 初始化第三个窗口背景信息文字
+        self.label_3.setWordWrap(True)
+        self.label_3.setText('检测信息\n')
+        self.label_3.setAlignment(Qt.AlignTop)
+        self.scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        # 设置整个窗口的背景图片
+        # bg_image = QPixmap()
+        # bg_image.load('background.png')
         #
+        # # 创建画刷
+        # palette = QPalette()
+        # palette.setBrush(QPalette.Background, QBrush(bg_image))
+        #
+        # # 应用画刷到窗口
+        # self.setPalette(palette)
     # 初始化参数
     def run(self,
             weights=ROOT / 'best.pt',  # model path or triton URL
@@ -182,8 +196,11 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
                                 if confidences.nelement() == 0:
                                     self.count = 0
 
+                                # 出现摔倒情况更新报警文本框
                                 if names[c] == 'down' and self.count == 0:
+                                    self.updateLabel('出现摔倒异常...........................')
                                     self.count = self.count + 1
+
                                 if self.count >= 1 and names[c] == 'down':
                                     target_cls = 0  # 获取标签为0的目标框(down)
                                     target_boxes = det[det[:, -1] == target_cls]
@@ -193,7 +210,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
                                     confidences_list = confidences.tolist()
                                     value = confidences_list[0]
                                     # 判断置信度是否超过期望阈值
-                                    if value >= 0.85 and self.count <= 2:
+                                    if value >= 0.90 and self.count <= 2:
                                         self.warning()
                                         self.count = self.count + 1
                                         mark = time.localtime()
@@ -344,12 +361,19 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
                             # 获取目标框置信度列表
                             confidences = target_boxes[:, 4]
-                            # 如果没有摔倒人员 将count标记清0
+                            # 如果没有摔倒人员 将count标记清0且输出正常文本信息
                             if confidences.nelement() == 0:
                                 self.count = 0
 
                             if names[c] == 'down' and self.count == 0:
+                                # 获取本地时间并和异常报警一起写入报警框
+                                mark = time.localtime()
+                                time_local = str(mark.tm_year) + '.' + str(mark.tm_mon) + '.' + str(
+                                    mark.tm_mday) + ' ' + str(
+                                    mark.tm_hour) + '：' + str(mark.tm_min) + '：' + str(mark.tm_sec)
+                                self.updateLabel('出现摔倒异常......................' + time_local)
                                 self.count = self.count + 1
+
                             if self.count >= 1 and names[c] == 'down':
                                 target_cls = 0  # 获取标签为0的目标框(down)
                                 target_boxes = det[det[:, -1] == target_cls]
@@ -359,7 +383,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
                                 confidences_list = confidences.tolist()
                                 value = confidences_list[0]
                                 # 判断置信度是否超过期望阈值
-                                if value >= 0.95 and self.count <= 2:
+                                if value >= 0.90 and self.count <= 2:
                                     self.warning()
                                     self.count = self.count+1
                                     mark = time.localtime()
@@ -379,6 +403,23 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.label.repaint()
                 # 将 QImage 设置为 QLabel 的背景
                 self.label.setPixmap(p.scaled(self.label.width(), self.label.height(), Qt.KeepAspectRatio))
+
+    # 监测信息显示框实时文本更新
+    def updateLabel(self, new_text):
+        # 获取现有文本并追加新文本
+        current_text = self.label_3.text()
+        updated_text = current_text + '\n' + new_text
+        # 设置更新后的文本
+        self.label_3.setText(updated_text)
+
+    def show_capture(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, "选择文件", "data_saved", "所有文件 (*);;文本文件 (*.txt)")
+        self.label_2.setScaledContents(True)  # 自适应大小
+
+        # 加载指定路径的图片
+        pixmap = QPixmap(file_path)
+        self.label_2.setPixmap(pixmap)
+
 
     def open_camera(self):
         self.running = True
@@ -411,7 +452,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
                                           defaultButton=QtWidgets.QMessageBox.Ok)
 
     def warning(self):
-        url = ' http://miaotixing.com/trigger?id=tOq1W94'
+        url = ' http://miaotixing.com/trigger?id=tej14SS'
         requests.get(url)
 
 
